@@ -1,0 +1,225 @@
+
+<html lang="en">
+<head>
+    <title>Create Concept</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="/home/namita/work/cms/ckeditor/ckeditor.js"></script>
+</head>
+
+<body>
+
+    <div class="container">
+
+    <h2>Create Concept</h2>
+        <form role="form" id="concept_form" enctype="multipart/form-data" id="create-concept">
+        
+            <div class="form-group">
+                <label for="concept_title">Concept Title:</label>
+                <input name="concept_title" class="form-control" id="concept_title" placeholder="Enter title">
+            </div>
+
+            <div class="form-group">
+                <label for="producer">Producer:</label>
+                <input name="producer" class="form-control" id="producer" placeholder="Enter producer name">
+            </div>
+
+            <div class="form-group">
+                <label for="talent">Talent:</label>
+                <input name="talent" class="form-control" id="talent" placeholder="Enter talent name">
+            </div>
+
+            <div class="form-group">
+                <label for="no_of_videos">No. of Videos:</label>
+                <input name="no_of_videos" class="form-control" id="no_of_videos" placeholder="Enter no of videos to be created from this concept">
+            </div>
+            <div id="video_names"></div>
+
+            <div class="form-group">
+                <label for="concept_note">Concept Note:</label>
+                <textarea name="editor1" id="editor1" rows="10" cols="80"></textarea>
+            </div>
+            <script>
+                // Replace the <textarea id="editor1"> with a CKEditor
+                // instance, using default configuration.
+                CKEDITOR.replace( 'editor1' );
+            </script>
+
+            <div class="form-group">
+                <label class="control-label">Select File</label>
+                <input name="file-1" id="file-1" type="file" class="file">
+            </div>
+                        
+
+            <div class="form-group">
+                <label for="embeded-link">Enter Link</label>
+                <input name="embeded_link" id="embeded-link" class="form-control" placeholder="Enter the youtube video link">
+            </div>
+
+            <div class="form-group" id="uploaded_files"></div>
+
+            <div class="form-group">
+                <label for="shoot_days">Shoot Days:</label>
+                <input name="shoot_days" class="form-control" id="shoot_days" placeholder="Enter shoot days">
+            </div>
+
+            <div class="form-group">
+                <label for="talent_costs">Talent Costs:</label>
+                <input name="talet_costs" class="form-control" id="talent_costs" placeholder="Enter talent costs">
+            </div>            
+
+            <div class="form-group">
+                <label for="set_and_art">Set and Art:</label>
+                <input name="set_and_art" class="form-control" id="set_and_art" placeholder="Enter set and art costs">
+            </div>
+
+            <div class="form-group">
+                <label for="crew">Crew:</label>
+                <input name="crew" class="form-control" id="crew" placeholder="Enter crew">
+            </div>
+
+            <div class="form-group">
+                <label for="total_budget">Total Budget:</label>
+                <input name="total_budget" class="form-control" id="total_budget" placeholder="Enter total budget">
+            </div>
+
+            <input type="button" class="btn btn-primary" onclick="create_new_concept();" value="Create Concept" />
+            <!--input type="submit" class="btn btn-primary" /-->
+        </form>
+
+        <pre id="result1"></pre>
+
+    </div>
+    <script type="text/javascript">
+        
+        function create_new_concept()
+        {
+            var video_names = [];
+            for(var i=0; i < $("#no_of_videos").val(); i++){
+                video_names.push($("#video_" + i).val());
+            }
+            var formData = new FormData();
+            formData.append('file', $( '#file-1' )[0].files[0]);
+            console.log(formData);
+            formData.append("concept_title", $("#concept_title").val())
+            formData.append("producer", $("#producer").val())
+            formData.append("talent", $("#talent").val())
+            formData.append("no_of_videos", $("#no_of_videos").val())
+            formData.append("video_names", video_names)
+            formData.append("concept_note", $("#concept_note").val())
+            formData.append("shoot_days", $("#shoot_days").val())
+            formData.append("talent_costs", $("#talent_costs").val())
+            formData.append("set_and_art", $("#set_and_art").val())
+            formData.append("crew", $("#crew").val())
+            formData.append("total_budget", $("#total_budget").val())
+
+            $.ajax({
+                url: "http://localhost:5000/concept",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function(data){
+                    console.log("Concept stored!!! Hurrey :D");
+                }
+            });
+        };
+        
+        var el = $('#file-1');
+        el.onchange = function(){
+            console.log("In here");
+        };
+
+        $("#no_of_videos").on('blur', function(){   
+            var previous_no_of_videos =   $("#video_names div").length;
+            
+            if (!$("#no_of_videos").val()){
+                return;
+            }   
+            current_no_of_videos = parseInt($("#no_of_videos").val())
+            
+            if (previous_no_of_videos < current_no_of_videos){
+                var diff = current_no_of_videos - previous_no_of_videos
+                for (i = 0; i < diff; i++){
+                    var video_name = $("<div class=\"form-group\"><input class=\"form-control\" name=\"video_" + i + "id=\"video_" + i + "\" placeholder=\"Enter Video Title\"></input></div>");
+                    $("#video_names").append(video_name);    
+                }
+            }
+
+            else if (previous_no_of_videos > current_no_of_videos){
+                
+                var diff = current_no_of_videos - previous_no_of_videos
+                
+                for (i = 0; i > diff; i--){
+                    
+                    $("#video_names div:last-child").remove();
+                }
+            }
+
+            previous_no_of_videos = current_no_of_videos;
+
+        });
+
+        $("#embeded-link").on('blur', function(){
+
+           $.ajax({
+                url: "http://localhost:5000/embeded_link/?url=" + $("#embeded-link").val(),
+                type: "GET",
+                success: function(data){
+                    data = JSON.parse(data);
+                    console.log(data.embeded_link);
+                    var uploaded_file = $(data.embeded_link);
+                    console.log(uploaded_file);
+                    $("#uploaded_files").append(uploaded_file);
+                    console.log("embeded-link ho gaya");
+                }
+            }); 
+        });
+
+        $.fn.serializeObject = function()
+        {
+            var o = {};
+            var a = this.serializeArray();
+            console.log("----------------");
+            console.log(a);
+            console.log("----------------");
+            $.each(a, function() {
+                if (o[this.name] !== undefined) {
+                    if (!o[this.name].push) {
+                        o[this.name] = [o[this.name]];
+                    }
+                    o[this.name].push(this.value || '');
+                } else {
+                    o[this.name] = this.value || '';
+                }
+            });
+            return o;
+        };
+        /*
+    
+        function create_new_concept() 
+        {
+            console.log("In submit");
+            var form_data = $('form').serializeObject();
+            $('#result').text(form_data);
+            console.log(form_data)
+            
+            $.ajax({
+                url: "http://localhost:5000/concept",
+                type: "POST",
+                data: form_data,
+                success: function(data){
+                    console.log("Concept stored!!! Hurrey :D");
+                }
+            });
+            
+        }*/
+
+    </script>
+
+</body>
+</html>
