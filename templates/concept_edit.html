@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+      <script src="/static/js/ckeditor/ckeditor.js"></script>
+	<title>
+		Edit Concept
+	</title>
+
+
+</head>
+<body>
+
+    <div class="container">
+
+        <h2>Edit Concept</h2>
+        <form role="form" id="concept_form" enctype="multipart/form-data" id="create-concept" class="concept-creation-form">
+        
+            <div class="form-group">
+                <label for="concept_title">Concept Title:</label>
+                <input class="form-control" id="concept_title" placeholder="Enter title">
+            </div>
+
+            <div class="form-group">
+                <label for="producer">Producer:</label>
+                <input class="form-control" id="producer" placeholder="Enter producer name">
+            </div>
+
+            <div class="form-group">
+                <label for="talent">Talent:</label>
+                <input class="form-control" id="talent" placeholder="Enter talent name">
+            </div>
+
+            <div class="form-group">
+                <label for="no_of_videos">No. of Videos:</label>
+                <input class="form-control" id="no_of_videos" placeholder="Enter no of videos to be created from this concept">
+            </div>
+            <div id="video_names"></div>
+
+           <div class="form-group">
+                <label for="concept_note">Concept Note:</label>
+                <textarea name="editor1" id="editor1" rows="10" cols="80"></textarea>
+            </div>
+            <script>
+                // Replace the <textarea id="editor1"> with a CKEditor
+                // instance, using default configuration.
+                CKEDITOR.replace( 'editor1' );
+            </script>
+
+            <div class="form-group">
+                <label class="control-label">Select File</label>
+                <input id="file-1" type="file" class="file" >
+            </div>
+             
+
+            <div class="form-group">
+                <label for="embeded-link">Enter Link</label>
+                <input id="embeded-link" class="form-control" placeholder="Enter the youtube video link">
+            </div>
+
+            <div class="form-group" id="uploaded_files"></div>
+
+            <div class="form-group">
+                <label for="shoot_days">Shoot Days:</label>
+                <input class="form-control" id="shoot_days" placeholder="Enter shoot days">
+            </div>
+
+            <div class="form-group">
+                <label for="talent_costs">Talent Costs:</label>
+                <input class="form-control" id="talent_costs" placeholder="Enter talent costs">
+            </div>            
+
+            <div class="form-group">
+                <label for="set_and_art">Set and Art:</label>
+                <input class="form-control" id="set_and_art" placeholder="Enter set and art costs">
+            </div>
+
+            <div class="form-group">
+                <label for="crew">Crew:</label>
+                <input class="form-control" id="crew" placeholder="Enter crew">
+            </div>
+
+            <div class="form-group">
+                <label for="total_budget">Total Budget:</label>
+                <input class="form-control" id="total_budget" placeholder="Enter total budget">
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <input class="form-control" id="status" placeholder="Enter status">
+            </div>
+
+            <input type="button" class="btn btn-info" onclick="edit_concept();" value="EDIT" />
+        </form>
+
+    </div>
+</body>
+	<script type="text/javascript">
+		var concept_id;
+		var SERVER_URL = "http://localhost:5000";
+		var concept_details;
+		$(document).ready(function(){
+			
+			var pairs = document.URL.split('?')
+			           .pop()
+			
+			concept_id = pairs.split('=')[1];
+			
+
+			$.ajax({
+                url: "http://localhost:5000/concept/" + concept_id,
+                type: "GET",
+                success: function(data){
+                    data = JSON.parse(data);
+                    concept_details = data;
+                 	console.log(data.embeded_links);
+                 	$("#concept_title").val(data.concept_title);
+                 	$("#producer").val(data.producer);
+                 	$("#talent").val(data.talent);
+                 	$("#no_of_videos").val(data.no_of_videos);
+                 	CKEDITOR.instances['editor1'].setData(data.concept_note[0]);
+                 	$("#embeded-link").val(data.embeded_links);
+                 	$("#shoot_days").val(data.shoot_days);
+                 	$("#set_and_art").val(data.set_and_art);
+                 	$("#crew").val(data.crew);
+                 	$("#total_budget").val(data.total_budget);
+                 	$("#talent_costs").val(data.talent_costs);
+                 	$("#status").val(data.status);
+                }
+            });	
+		});
+		var uploaded_file_link = null;
+		function edit_concept()
+		{
+			var video_names = [];
+            for(var i=0; i < $("#no_of_videos").val(); i++){
+                video_names.push($("#video_" + i).val());
+            }
+
+			var formData = new FormData();
+            formData.append("concept_title", $("#concept_title").val())
+            formData.append("producer", $("#producer").val())
+            formData.append("talent", $("#talent").val())
+            formData.append("no_of_videos", $("#no_of_videos").val())
+            formData.append("video_names", video_names)
+            formData.append("concept_note", CKEDITOR.instances.editor1.getData())
+            formData.append("shoot_days", $("#shoot_days").val())
+            formData.append("talent_costs", $("#talent_costs").val())
+            formData.append("set_and_art", $("#set_and_art").val())
+            formData.append("crew", $("#crew").val())
+            formData.append("total_budget", $("#total_budget").val())
+            //formData.append("file_storage_url", uploaded_file_link)
+            formData.append("embeded_links", $("#embeded-link").val())
+            formData.append("status", $("#status").val())
+
+
+			$.ajax({
+                url: "http://localhost:5000/concept/" + concept_id,
+                type: "PUT",
+                data: formData,  
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function(data){
+                    data = JSON.parse(data);
+                 	console.log(data)
+                 	$('#concept_form').remove();
+                 	$(".container").append($("<label>Edited Succesfully.</label>"))
+                 	
+                }
+            });
+		}
+		$(document).on('change','#file-1' , function(){ 
+            uploadFile(); 
+        });
+		function uploadFile()
+        {
+            is_uploading = true;
+            var formData = new FormData();
+            formData.append('file', $( '#file-1' )[0].files[0]);
+            console.log(formData);
+
+            $.ajax({
+                url: SERVER_URL + "/file_upload",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function(data){
+                    //TODO: show_loader
+                    data = JSON.parse(data);
+                    uploaded_file_link = data.google_store_file_path;
+                    console.log(uploaded_file_link);
+                },
+                complete: function(data){
+                    is_uploading = false;
+                }
+            });
+        };
+
+        $("#no_of_videos").on('blur', function(){   
+            var previous_no_of_videos =   $("#video_names div").length;
+            
+            if (!$("#no_of_videos").val()){
+                return;
+            }   
+            current_no_of_videos = parseInt($("#no_of_videos").val())
+            
+            if (previous_no_of_videos < current_no_of_videos){
+                var diff = current_no_of_videos - previous_no_of_videos
+                for (i = 0; i < diff; i++){
+                    var video_name = $("<div class=\"form-group\"><input class=\"form-control\" id=\"video_" + i + "\" placeholder=\"Enter Video Title\"></input></div>");
+                    $("#video_names").append(video_name);    
+                }
+            }
+
+            else if (previous_no_of_videos > current_no_of_videos){
+                
+                var diff = current_no_of_videos - previous_no_of_videos
+                
+                for (i = 0; i > diff; i--){
+                    
+                    $("#video_names div:last-child").remove();
+                }
+            }
+
+            previous_no_of_videos = current_no_of_videos;
+
+        });
+	</script>
+
+</html>

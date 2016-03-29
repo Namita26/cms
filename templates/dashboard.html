@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		Dashboard
+	</title>
+
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+
+    <style type="text/css">
+    	.collapsible-panel {
+    		margin: 20px 20px;
+    		margin-left: 40px;
+    	}
+    	.create-concept {
+    		margin: 20px;
+    	}
+    	.left-nav {
+    		float: left;
+    		width: 10.9%;
+    		height: 1000px;
+    		margin-top: 10px;
+    		/*border: 1px solid;*/
+    		
+    	}
+    	.top-nav {
+    		height: 30px;
+    		/*border: 1px solid;*/
+    	}
+    	.container {
+    		width: 87%;
+    		min-height:500px;
+    	}
+    	.row-header {
+    		width: 150px;
+
+    	}
+    	a {
+		    color: #0000ff !important;
+		}
+		
+
+    </style>
+
+	
+</head>
+
+	<body style="background: #C2DFFF;">
+		<div class="top-nav"></div>
+		<div class="left-nav"></div>
+		<div class="container">
+			<input type="button" class="btn btn-primary create-concept" value="New Concept " onclick="window.open('http://localhost/templates/concept_creation.html', '_blank');" />
+
+			<div id="concepts-list" class="collapsible-panel">
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+
+		var SERVER_URL = "http://localhost:5000"; 
+		
+		$(document).ready(function(){
+			$.ajax({
+	            url: SERVER_URL + "/concept",
+	            type: "GET",
+	            success: function(data){
+	                data = JSON.parse(data);
+	                var allConcepts = data;
+
+	                for(var x in data){
+	                	console.log(data[x]["embeded_links"]);
+	                	var linksHtml = "<tr><td class='row-header'><b>Attachments: </b></td><td>";
+	                	if (data[x]["embeded_links"]){
+	                		var links = data[x]["embeded_links"][0].split(",")
+	                		for (var index in links){
+	                			var link = links[index]
+	                			linksHtml += "<a href='"+link+"'>" + link + "</a>";
+	                		}
+	                	}
+	                	linksHtml += "</td></tr>";
+
+	                	var storageFilesHtml = "<tr><td class='row-header'><b>Uploaded Files: </b></td><td>";
+	                	if (data[x]["file_storage_url"]){
+	                		var links = data[x]["file_storage_url"];
+	                		for (var index in links){
+	                			var link = links[index]
+	                			storageFilesHtml += "<a href='"+link+"'>" + link + "</a>";
+	                		}
+	                	}
+	                	storageFilesHtml += "</td></tr>";
+
+	                	var videoNamesFilesHtml = "<tr><td class='row-header'><b>Video Names: </b></td><td>";
+	                	if (data[x]["video_names"]){
+	                		var links = data[x]["video_names"][0].split(",")
+	                		for (var index in links){
+	                			var link = links[index]
+	                			videoNamesFilesHtml += link + ",";
+	                		}
+	                	}
+	                	videoNamesFilesHtml += "</td></tr>";
+
+
+	                	var collapsible_div = $("<h3>" + data[x]["concept_title"] + "</h3> <div>" +
+	                		"<table>" +
+	                		"<tr><td class='row-header'><b>Producer: </b></td><td>"+ data[x]["producer"] +"</td></tr>" +
+	                		"<br>"+
+	                		"<tr><td class='row-header'><b>Talent: </b></td><td>"+ data[x]["talent"] +"</td></tr>" +
+	                		"<br>"+
+	                		"<tr><td class='row-header'><b>No of Videos: </b></td><td>"+ data[x]["no_of_videos"] +"</td></tr>" +
+	                		"<br>"+
+	                		"<tr><td class='row-header'><b>Note: </b></td><td>"+ data[x]["concept_note"] +"</td></tr>" +
+	                		"<tr><td class='row-header'><b>Shoot Days: </b></td><td>"+ data[x]["shoot_days"] +"</td></tr>" +
+	                		"<tr><td class='row-header'><b>Talent Costs: </b></td><td>"+ data[x]["talent_costs"] +"</td></tr>" +
+	                		"<tr><td class='row-header'><b>Set and Art: </b></td><td>"+ data[x]["set_and_art"] +"</td></tr>" +
+	                		"<tr><td class='row-header'><b>Crew: </b></td><td>"+ data[x]["crew"] +"</td></tr>" +
+	                		"<tr><td class='row-header'><b>Total Budget: </b></td><td>"+ data[x]["total_budget"] +"</td></tr>" +
+
+	                		"<tr style='display:none;'><td class='row-header'><b>Concept ID: </b></td><td>"+ data[x]["name"] +"</td></tr>" +
+	                		linksHtml +
+	                		storageFilesHtml +
+	                		videoNamesFilesHtml +
+	                		"</table>" +
+	                		"<br>"+
+
+	                		"<input type=\"button\" class=\"btn btn-info edit-concept\" concept-id=" + data[x]["name"] + " value=\" EDIT \" />               	" +
+	                		"<input type=\"button\" class=\"btn btn-danger delete-concept\"  concept-id=" + data[x]["name"] + " value=\" DELETE \" />" +
+	                		"<br>" +
+	                		"</div>");
+	                	$("#concepts-list").append(collapsible_div);
+	                }
+	                $( "#concepts-list" ).accordion();
+
+	                $(".edit-concept").click(function(e){
+	                	var concept = ($(this).attr('concept-id'));
+	                	window.open('http://localhost/templates/concept_edit.html?concept='+concept, '_blank');
+	                })
+
+	                $(".delete-concept").click(function(e){
+						var concept_id = ($(this).attr('concept-id'));
+						$.ajax({
+			                url: "http://localhost:5000/concept/" + concept_id,
+			                type: "DELETE",
+			                success: function(data){
+			                    data = JSON.parse(data);
+			                 	$(this).remove();   
+			                }
+			            });	                	
+	                })
+	            }
+	        });		
+		});
+		</script>
+
+</html>
