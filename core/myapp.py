@@ -4,11 +4,12 @@ Created flask app
 
 from flask import Flask, render_template
 from flask.ext import restful
+from flask.ext.cors import CORS
 from service_apis.users import User
 from service_apis.concept import Concept, ConceptList, EmbededLink
 from service_apis.file_upload import FileUpload
 from service_apis.auth import Auth
-from flask.ext.cors import CORS
+from service_apis.crew import Crew, CrewList
 
 
 app = Flask(__name__)
@@ -28,6 +29,8 @@ api.add_resource(Concept, '/concept/<string:concept_id>')
 api.add_resource(Auth, '/auth/')
 api.add_resource(EmbededLink, '/embeded_link/')
 api.add_resource(FileUpload, '/file_upload')
+api.add_resource(Crew, '/crew/<string:crew_id>')
+api.add_resource(CrewList, '/crew')
 
 
 def authenticate(func):
