@@ -28,7 +28,7 @@ def create_key(kind, primary_key):
 
 def add_concept(concept_details):
 
-    key = create_key('Concepts', 'fifth')
+    key = create_key('Concepts', 'seventh')
 
     concept = datastore.Entity(
             key, exclude_from_indexes=['concept_note'])
@@ -43,11 +43,11 @@ def add_concept(concept_details):
         'producer': concept_details['producer'][0],
         'talent': concept_details['talent'][0],
         'no_of_videos': concept_details['no_of_videos'][0],
-        'concept_note': concept_details['concept_note'],
+        'concept_note': concept_details['concept_note'][0],
         'shoot_days': concept_details['shoot_days'][0],
         'talent_costs': concept_details['total_budget'][0],
         'set_and_art': concept_details['set_and_art'][0],
-        'crew': concept_details['crew'][0],
+        'crew': list(set(concept_details['crew'][0].split(","))),
         'total_budget': concept_details['total_budget'][0],
         'file_storage_url': concept_details['file_storage_url'][0],
         'embeded_links': concept_details['embeded_links'],
