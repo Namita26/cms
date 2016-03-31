@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8"> 
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
       <script src="/static/js/ckeditor/ckeditor.js"></script>
+      <script src="/static/js/main.js"></script>
+      <script src="/static/js/js.cookie.js"></script>
 	<title>
 		Edit Concept
 	</title>
@@ -15,7 +18,8 @@
 </head>
 <body>
 
-    <div class="container">
+    
+    <div class="container" style="display: none;">
 
         <h2>Edit Concept</h2>
         <form role="form" id="concept_form" enctype="multipart/form-data" id="create-concept" class="concept-creation-form">
@@ -50,14 +54,13 @@
                 // instance, using default configuration.
                 CKEDITOR.replace( 'editor1' );
             </script>
-
             <div class="form-group">
                 <label class="control-label">Select File</label>
                 <input id="file-1" type="file" class="file" >
             </div>
              
 
-            <div class="form-group">
+            <div class="form-group" style="display: none;">
                 <label for="embeded-link">Enter Link</label>
                 <input id="embeded-link" class="form-control" placeholder="Enter the youtube video link">
             </div>
@@ -69,29 +72,40 @@
                 <input class="form-control" id="shoot_days" placeholder="Enter shoot days">
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="display: none;">
                 <label for="talent_costs">Talent Costs:</label>
                 <input class="form-control" id="talent_costs" placeholder="Enter talent costs">
             </div>            
 
-            <div class="form-group">
+            <div class="form-group" style="display: none;">
                 <label for="set_and_art">Set and Art:</label>
                 <input class="form-control" id="set_and_art" placeholder="Enter set and art costs">
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="checkboxes">
                 <label for="crew">Crew:</label>
-                <input class="form-control" id="crew" placeholder="Enter crew">
+                <!--label><input type="checkbox" style="margin-left: 10px;" value="Sound" id="sound" placeholder="Enter crew" name="crew">  Sound</label>
+                <label><input type="checkbox" style="margin-left: 10px;" value="Addtional Camera" id="addtional_camera"  name="crew">  Additional Camera</label>
+                <label><input type="checkbox" style="margin-left: 10px;" value="Visual Effects" id="visual_effects" name="crew">  Visual Effects</label-->
+
+                <label><input type="checkbox" style="margin-left: 10px;" id="other" name="crew">  Other</label>
+                <input id="other-crew" class="checkboxes-layout" name="crew" style="display: none;"></input>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="display: none;">
                 <label for="total_budget">Total Budget:</label>
                 <input class="form-control" id="total_budget" placeholder="Enter total budget">
             </div>
 
             <div class="form-group">
                 <label for="status">Status:</label>
-                <input class="form-control" id="status" placeholder="Enter status">
+                <select class="form-control" id="status" placeholder="Enter status">
+                    <option value="In progress">In progress</option>
+                    <option value="Pending Approval">Pending Approval</option>
+                    <option value="Approved" disabled>Approved</option>
+                    <option value="Rejected" disabled>Rejected</option>
+                    <option value="Develop Further" disabled>Develop Further</option>
+                </select>
             </div>
 
             <input type="button" class="btn btn-info" onclick="edit_concept();" value="EDIT" />
@@ -100,47 +114,128 @@
     </div>
 </body>
 	<script type="text/javascript">
+		var crew_map = {
+			"Addtional Camera": "addtional_camera",
+			"Sound": "sound",
+			"Visual Effects": "visual_effects"
+		}
+        var all_crew;
 		var concept_id;
 		var SERVER_URL = "http://localhost:5000";
 		var concept_details;
+        var uploaded_file_link = null;
+        var cookie_token = Cookies.get('token');
+        function convert_to_id(input_str){
+            return input_str.replace(" ", "");
+        }
+
 		$(document).ready(function(){
 			
 			var pairs = document.URL.split('?')
 			           .pop()
 			
 			concept_id = pairs.split('=')[1];
-			
 
+            
+		
 			$.ajax({
-                url: "http://localhost:5000/concept/" + concept_id,
+                url: SERVER_URL + "/concept/" + concept_id,
                 type: "GET",
+                crossDomain: true,
+                headers: { 'token': cookie_token },
                 success: function(data){
-                    data = JSON.parse(data);
-                    concept_details = data;
-                 	console.log(data.embeded_links);
-                 	$("#concept_title").val(data.concept_title);
-                 	$("#producer").val(data.producer);
-                 	$("#talent").val(data.talent);
-                 	$("#no_of_videos").val(data.no_of_videos);
-                 	CKEDITOR.instances['editor1'].setData(data.concept_note[0]);
-                 	$("#embeded-link").val(data.embeded_links);
-                 	$("#shoot_days").val(data.shoot_days);
-                 	$("#set_and_art").val(data.set_and_art);
-                 	$("#crew").val(data.crew);
+                    $(".container").show();
+                    $.ajax({
+                        url: SERVER_URL + "/crew",
+                        type: "GET",
+                        success: function(data){
+                            all_crew = JSON.parse(data);
+                            
+                            for (index in all_crew){
+                                console.log(all_crew[index]['crew_name']);
+                                if (document.getElementById(convert_to_id( all_crew[index]['crew_name'] )) == null)
+                                {
+                                    var each_crew = $("<label><input type=\"checkbox\" style=\"margin-left: 10px;\" value=\"" + all_crew[index]['crew_name'] + "\" id=\""+ convert_to_id(all_crew[index]['crew_name']) +"\" name=\"crew\">"+ all_crew[index]['crew_name'] +"</label>");
+                                    $("#checkboxes").append(each_crew);
+                                }
+                            }
+
+
+                        }
+                    });
+
+
+                    concept_details = JSON.parse(data);
+                    
+                 	console.log(concept_details.concept_note);
+
+                   
+                 	$("#concept_title").val(concept_details.concept_title);
+                 	$("#producer").val(concept_details.producer);
+                 	$("#talent").val(concept_details.talent);
+                 	$("#no_of_videos").val(concept_details.no_of_videos);
+                 	CKEDITOR.instances['editor1'].setData(concept_details.concept_note);
+                 	$("#embeded-link").val(concept_details.embeded_links);
+                 	$("#shoot_days").val(concept_details.shoot_days);
+                 	$("#set_and_art").val(concept_details.set_and_art);
+                    $("#status").val(concept_details.status[0]);
+                 	$("#crew").val(concept_details.crew);
+
+                 	crew_data = concept_details.crew;
+                    //crew_data = crew_data[0].split(",");
+                    for (var index in crew_data){
+                        console.log("Existing crew from this concept  "+crew_data[index]);
+                        if (document.getElementById(convert_to_id( crew_data[index] )) != null){
+                            $("#" + convert_to_id(crew_data[index])).prop("checked", "true");
+                        }
+                        else {
+                            var each_crew = $("<label><input type=\"checkbox\" style=\"margin-left: 10px;\" value=\"" + crew_data[index] + "\" id=\""+ convert_to_id(crew_data[index]) +"\" name=\"crew\">"+ crew_data[index] +"</label>");
+                            $("#checkboxes").append(each_crew);
+                            $("#" + convert_to_id(crew_data[index])).prop("checked", "true");
+                        }
+                    }
                  	$("#total_budget").val(data.total_budget);
                  	$("#talent_costs").val(data.talent_costs);
                  	$("#status").val(data.status);
+                },
+                error: function(data){
+                    window.location.href = BASE_URL+"/";
                 }
             });	
 		});
-		var uploaded_file_link = null;
+		
+
+
+
+
+
 		function edit_concept()
 		{
+			var crew_set = [];
 			var video_names = [];
             for(var i=0; i < $("#no_of_videos").val(); i++){
                 video_names.push($("#video_" + i).val());
             }
+            $.each($("input[name='crew']:checked"), function(){
+                if($(this).attr("id") == "other"){
+                    var other_crews = $("#other-crew").val().split(",")
+                    console.log("Other crews   "+other_crews);
+                    for (var cre=0; cre < other_crews.length; cre++){
+                        crew_set.push(other_crews[cre]);    
+                    }
+                }
+                else crew_set.push($(this).val());
+            });
+            /*if (document.getElementById("other-crew")){
+	            if( ( $("#other-crew").val() ) != null){
+	            	crew_set.push($(this).val());
+	            } 
+	        }*/
+	 
+            console.log("Final crew==" + crew_set);
 
+            //crew_set = crew_set.split(",");
+            console.log(CKEDITOR.instances.editor1.getData());
 			var formData = new FormData();
             formData.append("concept_title", $("#concept_title").val())
             formData.append("producer", $("#producer").val())
@@ -151,7 +246,7 @@
             formData.append("shoot_days", $("#shoot_days").val())
             formData.append("talent_costs", $("#talent_costs").val())
             formData.append("set_and_art", $("#set_and_art").val())
-            formData.append("crew", $("#crew").val())
+            formData.append("crew", crew_set)
             formData.append("total_budget", $("#total_budget").val())
             //formData.append("file_storage_url", uploaded_file_link)
             formData.append("embeded_links", $("#embeded-link").val())
@@ -161,7 +256,9 @@
 			$.ajax({
                 url: "http://localhost:5000/concept/" + concept_id,
                 type: "PUT",
-                data: formData,  
+                data: formData,
+                crossDomain: true,
+                headers: { 'token': cookie_token },
                 contentType: false,
                 cache: false,
                 processData: false,
@@ -173,6 +270,39 @@
                  	
                 }
             });
+            var db_crews = [];
+            var crews_to_be_added_to_db = [];
+
+            for(var index in all_crew){
+                db_crews.push(all_crew[index]["crew_name"]);
+            }
+            console.log("crews_to_be_added_to_db----------->>> ");
+            for (var i=0; i < crew_set.length; i++){
+                if (!(crew_set[i] in db_crews)){
+                    crews_to_be_added_to_db.push(crew_set[i]);
+                }
+            }
+
+
+            console.log("crews_to_be_added_to_db----------->>> "+ crews_to_be_added_to_db);
+            for(var i=0; i < crews_to_be_added_to_db.length; i++){
+                
+                var crew_details = {                                                    
+                    "crew_name": crews_to_be_added_to_db[i],
+                    "user_id": "first"
+                }
+                $.ajax({
+                    url: SERVER_URL + "/crew",
+                    type: "POST",
+                    data: crew_details,
+                    success: function(data)
+                    {
+                        console.log(data);
+                    }
+                });
+            }
+            
+
 		}
 		$(document).on('change','#file-1' , function(){ 
             uploadFile(); 
@@ -232,6 +362,19 @@
             previous_no_of_videos = current_no_of_videos;
 
         });
+        $("#other").on('click', function(){ 
+            if ($("#other").is(":checked") == true) {
+                console.log("checked");
+                $('#other-crew').show();
+                
+            }
+            else{
+                console.log("Not checked");
+                $('#other-crew').hide();
+            }
+        })
+
+        
 	</script>
 
 </html>
