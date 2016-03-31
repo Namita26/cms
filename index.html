@@ -1,29 +1,46 @@
-<html lang="en">
+<html lang="en" >
     <head>
+       <meta charset="UTF-8"> 
        <!-- <meta name="google-signin-scope" content="profile email"> -->
         <meta name="google-signin-client_id" content="816284744569-hblbg79baprfv7472kopc7q0ql53bn9b.apps.googleusercontent.com">
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="/static/js/main.js"></script>
+        <script src="/static/js/js.cookie.js"></script>
         <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <style type="text/css">
+          .sign_in {
+            top:10px;
+            width: 200px;
+            height: 200px;
+            /*border: 1px solid;*/
+            margin: 200px 200px 500px 520px;
+            padding: 50px 50px 50px 50px;
+          }
+        </style>
     </head>
     <body>
+      <div class="sign_in">
         <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+      </div>
         <script>
 
           function onSignIn(googleUser) {
             // Useful data for your client-side scripts:
               var profile = googleUser.getBasicProfile();
-              console.log("ID: " + profile.getId()); // Don't send this directly to your server!
-              console.log("Name: " + profile.getName());
-              console.log("Image URL: " + profile.getImageUrl());
-              console.log("Email: " + profile.getEmail());
+              //console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+              //console.log("Name: " + profile.getName());
+              //console.log("Image URL: " + profile.getImageUrl());
+              //console.log("Email: " + profile.getEmail());
 
               // The ID token you need to pass to your backend:
               id_token = googleUser.getAuthResponse().id_token;
-
+              console.log(googleUser.getAuthResponse());
               console.log("ID Token: " + id_token);
+              Cookies.set('token', id_token, { expires: 7 });
               validate_token(id_token);
           };
+
+
         </script>
     </body>
 </html>
