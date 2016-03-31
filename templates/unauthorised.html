@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	 <meta charset="UTF-8"> 
+	<script src="/static/js/main.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<title></title>
+	<h2>You are unauthorised</h2>
+	<div id="message">
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("#message").append("<div id=\"message\">This page is only allowed for <b>Glamrs.com</b> members. <a href ="+ BASE_URL +"> Sign In </a> with GLAMRS gmail id to continue.</div>");
+		});
+	</script>
+
+</head>
+<body>
+
+</body>
+</html>
