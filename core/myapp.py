@@ -11,7 +11,6 @@ from service_apis.file_upload import FileUpload
 from service_apis.auth import Auth
 from service_apis.crew import Crew, CrewList
 
-
 app = Flask(__name__)
 CORS(app)
 app.config['DEBUG'] = True
@@ -32,23 +31,6 @@ api.add_resource(FileUpload, '/file_upload')
 api.add_resource(Crew, '/crew/<string:crew_id>')
 api.add_resource(CrewList, '/crew')
 
-
-def authenticate(func):
-    """
-    TODO
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        #is_authorized = check_token_from_cookie()
-        is_authorized = True
-        if is_authorized:
-            return func(*args, **kwargs)
-        restful.abort(401)
-    return wrapper
-
-
-class AuthResource(restful.Resource):
-    method_decorators = [authenticate]
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
