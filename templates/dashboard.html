@@ -12,6 +12,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+    <script src="/static/js/js.cookie.js"></script>
+    <script src="/static/js/main.js"></script>
 
     <style type="text/css">
     	.collapsible-panel {
@@ -20,13 +22,14 @@
     	}
     	.create-concept {
     		margin: 20px;
+    		float: right;
     	}
     	.left-nav {
     		float: left;
-    		width: 10.9%;
-    		height: 1000px;
+    		width: 100%;
+    		height: 100px;
     		margin-top: 10px;
-    		/*border: 1px solid;*/
+    		border: 1px solid;
     		
     	}
     	.top-nav {
@@ -44,6 +47,18 @@
     	a {
 		    color: #0000ff !important;
 		}
+		table {
+			
+			border: 1px solid;
+			border-collapse: collapse;
+			text-overflow: none;
+		}
+
+		table td {
+			border-left: 1px solid #000;
+			border-right: 1px solid #000;
+		}
+
 		
 
     </style>
@@ -51,31 +66,72 @@
 	
 </head>
 
-	<body style="background: #C2DFFF;">
-		<div class="top-nav"></div>
-		<div class="left-nav"></div>
-		<div class="container">
-			<input type="button" class="btn btn-primary create-concept" value="New Concept " onclick="window.open('http://localhost/templates/concept_creation.html', '_blank');" />
-
-			<div id="concepts-list" class="collapsible-panel">
+	<body >
+		
+		<div class="container" style="display: none;">
+			<div class="left-nav">
+			
+				
 			</div>
+			<table id="concepts-list" style="border: 1px solid;" class="table table-hover">
+				<thead>
+					<tr>
+						<th class="col-md-1">Created Date</th>
+						<th class="col-md-3">Title</th>
+						<th class="col-md-2">Producer</th>
+						<th class="col-md-1">Talent</th>
+						<th class="col-md-1">No of Videos</th>
+						<!--th class="col-md-6">Video Names</th-->
+						<!--th class="col-md-2">Concept Note</th-->
+						<th class="col-md-1">Shoot Days</th>
+						<!--th class="col-md-8">Crew</th-->
+						<th class="col-md-1">Status</th>
+						<th class="col-md-1">EDIT</th>
+						<th class="col-md-1">DELETE</th>
+					</tr>
+				</thead>
+			</table>
+			<input type="button" class="btn btn-primary create-concept" value="New Concept " onclick="window.open('http://localhost/templates/concept_creation.html', '_blank');" />
 		</div>
+			
+
+		
 	</body>
 	<script type="text/javascript">
 
 		var SERVER_URL = "http://localhost:5000"; 
-		
+		cookie_token = Cookies.get('token');
 		$(document).ready(function(){
+			console.log("Here in document.ready");
+			console.log(Cookies.get('token'))
+			
+			if (cookie_token != null){
+				get_all_concepts(cookie_token)
+			}
+			else{
+				
+				window.location.href = BASE_URL+"/";
+			}
+					
+		});
+
+
+		function get_all_concepts(cookie_token){
+			
+			$(".container").show();
+
 			$.ajax({
 	            url: SERVER_URL + "/concept",
 	            type: "GET",
+	            crossDomain: true,
+	            headers: { 'token': cookie_token },
 	            success: function(data){
 	                data = JSON.parse(data);
 	                var allConcepts = data;
-
+	                console.log(allConcepts);
 	                for(var x in data){
-	                	console.log(data[x]["embeded_links"]);
-	                	var linksHtml = "<tr><td class='row-header'><b>Attachments: </b></td><td>";
+	                	
+	                	var linksHtml = "<td class=\"col-md-2\" >";
 	                	if (data[x]["embeded_links"]){
 	                		var links = data[x]["embeded_links"][0].split(",")
 	                		for (var index in links){
@@ -83,9 +139,9 @@
 	                			linksHtml += "<a href='"+link+"'>" + link + "</a>";
 	                		}
 	                	}
-	                	linksHtml += "</td></tr>";
+	                	linksHtml += "</td>";
 
-	                	var storageFilesHtml = "<tr><td class='row-header'><b>Uploaded Files: </b></td><td>";
+	                	var storageFilesHtml = "<td class=\"col-md-2\">";
 	                	if (data[x]["file_storage_url"]){
 	                		var links = data[x]["file_storage_url"];
 	                		for (var index in links){
@@ -93,9 +149,9 @@
 	                			storageFilesHtml += "<a href='"+link+"'>" + link + "</a>";
 	                		}
 	                	}
-	                	storageFilesHtml += "</td></tr>";
+	                	storageFilesHtml += "</td>";
 
-	                	var videoNamesFilesHtml = "<tr><td class='row-header'><b>Video Names: </b></td><td>";
+	                	var videoNamesFilesHtml = "<td class=\"col-md-2\">";
 	                	if (data[x]["video_names"]){
 	                		var links = data[x]["video_names"][0].split(",")
 	                		for (var index in links){
@@ -103,38 +159,31 @@
 	                			videoNamesFilesHtml += link + ",";
 	                		}
 	                	}
-	                	videoNamesFilesHtml += "</td></tr>";
+	                	videoNamesFilesHtml += "</td>";
 
 
-	                	var collapsible_div = $("<h3>" + data[x]["concept_title"] + "</h3> <div>" +
-	                		"<table>" +
-	                		"<tr><td class='row-header'><b>Producer: </b></td><td>"+ data[x]["producer"] +"</td></tr>" +
-	                		"<br>"+
-	                		"<tr><td class='row-header'><b>Talent: </b></td><td>"+ data[x]["talent"] +"</td></tr>" +
-	                		"<br>"+
-	                		"<tr><td class='row-header'><b>No of Videos: </b></td><td>"+ data[x]["no_of_videos"] +"</td></tr>" +
-	                		"<br>"+
-	                		"<tr><td class='row-header'><b>Note: </b></td><td>"+ data[x]["concept_note"] +"</td></tr>" +
-	                		"<tr><td class='row-header'><b>Shoot Days: </b></td><td>"+ data[x]["shoot_days"] +"</td></tr>" +
-	                		"<tr><td class='row-header'><b>Talent Costs: </b></td><td>"+ data[x]["talent_costs"] +"</td></tr>" +
-	                		"<tr><td class='row-header'><b>Set and Art: </b></td><td>"+ data[x]["set_and_art"] +"</td></tr>" +
-	                		"<tr><td class='row-header'><b>Crew: </b></td><td>"+ data[x]["crew"] +"</td></tr>" +
-	                		"<tr><td class='row-header'><b>Total Budget: </b></td><td>"+ data[x]["total_budget"] +"</td></tr>" +
-
-	                		"<tr style='display:none;'><td class='row-header'><b>Concept ID: </b></td><td>"+ data[x]["name"] +"</td></tr>" +
-	                		linksHtml +
-	                		storageFilesHtml +
-	                		videoNamesFilesHtml +
-	                		"</table>" +
-	                		"<br>"+
-
-	                		"<input type=\"button\" class=\"btn btn-info edit-concept\" concept-id=" + data[x]["name"] + " value=\" EDIT \" />               	" +
-	                		"<input type=\"button\" class=\"btn btn-danger delete-concept\"  concept-id=" + data[x]["name"] + " value=\" DELETE \" />" +
-	                		"<br>" +
-	                		"</div>");
-	                	$("#concepts-list").append(collapsible_div);
+	                	var table_row = $(
+	                		"<tr id="+data[x]["name"]+"><td>"+ data[x]["created"] +"</td>" +
+	                		"<td>"+ data[x]["concept_title"] +"</td>"+
+	                		"<td>"+ data[x]["producer"] +"</td>"+
+	                		
+	                		"<td>"+ data[x]["talent"] +"</td>" +
+	                		
+	                		"<td>"+ data[x]["no_of_videos"] +"</td>" +
+	                		/*videoNamesFilesHtml +
+	                		"<td>"+ data[x]["concept_note"] +"</td>" +*/
+	                		"<td>"+ data[x]["shoot_days"] +"</td>" +
+	                		"<td>"+ data[x]["status"] +"</td>" +
+	                		"<td><input type=\"button\" class=\"btn btn-info edit-concept\" concept-id=" + data[x]["name"] + " value=\" EDIT \" /></td>" +
+	                		"<td><input type=\"button\" class=\"btn btn-danger delete-concept\"  concept-id=" + data[x]["name"] + " value=\" DELETE \" /></td></tr>" +
+	                		/*linksHtml +
+	                		storageFilesHtml + */
+	                		"<tr style='display:none;'><td class='row-header'><b>Concept ID: </b></td><td>"+ data[x]["name"] +"</td></tr>" 
+	                		
+	                	);
+	                	$("#concepts-list").append(table_row);
 	                }
-	                $( "#concepts-list" ).accordion();
+	                
 
 	                $(".edit-concept").click(function(e){
 	                	var concept = ($(this).attr('concept-id'));
@@ -142,19 +191,27 @@
 	                })
 
 	                $(".delete-concept").click(function(e){
+	                	alert("In delete");
 						var concept_id = ($(this).attr('concept-id'));
 						$.ajax({
 			                url: "http://localhost:5000/concept/" + concept_id,
 			                type: "DELETE",
+			                crossDomain: true,
+	            			headers: { 'token': cookie_token },	
 			                success: function(data){
 			                    data = JSON.parse(data);
-			                 	$(this).remove();   
+			                 	$("#"+concept_id).remove();   
 			                }
 			            });	                	
 	                })
+	            },
+	            error: function(data){
+	            	console.log(data);
+	            	console.log("Not Authorised");
 	            }
-	        });		
-		});
+
+	        });
+		}
 		</script>
 
 </html>
