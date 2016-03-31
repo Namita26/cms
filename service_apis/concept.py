@@ -6,7 +6,7 @@ from service_apis_handlers import post_concept_handler, put_concept_handler, get
 import requests
 from werkzeug import secure_filename
 import os
-
+from core.auth_resource import authenticate
 
 '''
 class Concept(Resource):
@@ -56,6 +56,7 @@ class Concept(Resource):
     '''
 
 class ConceptList(Resource):
+    method_decorators = [authenticate]
 
     def get(self):
         """
@@ -71,15 +72,14 @@ class ConceptList(Resource):
 
         app.logger.info('Received request for Concept creation')
 
-        print "\n\nIn create post------------------\n\n", request.form
-        # return json.dumps(dict(request.form))
         return post_concept_handler.handle_request(dict(request.form))
 
 class Concept(Resource):
+    method_decorators = [authenticate]
 
     def get(self, concept_id):
         """
-        This method edits a Concept using paramters passed in the request
+        This method returns a Concept using concept_id passed in the request
         """
         app.logger.debug('Received get concept request: %s',
             concept_id)
@@ -90,7 +90,7 @@ class Concept(Resource):
         """
         This method SHOULD archieve the concept :P
         """
-
+        #TODO
         app.logger.debug('Received concept deletion request: %s',
             concept_id)
 
