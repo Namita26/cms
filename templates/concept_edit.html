@@ -13,12 +13,46 @@
 	<title>
 		Edit Concept
 	</title>
+    <style type="text/css">
+        
+        .left-nav {
+            float: left;
+            width: 11.9%;
+            height: 100%;
+            margin-top: 10px;
+            /*border: 1px solid;*/
+            /*background: #C2DFFF;*/
+        }
+        .top-nav {
+            height: 60px;
+            border: 1px solid;
+        }
+        .logout {
+            margin-top:10px;
+            float: right;
+        }
+        .container {
+            width: 87%;
+            min-height:500px;
+            float: right;
+        }
+        .concept-creation-form{
+            margin-right: 40px;
+        }
+        .checkboxes-layout {
+            margin: 10px 20px;
+        }
+
+    </style>
 
 
 </head>
 <body>
 
-    
+    <div class="top-nav">
+        <input type="button" class="btn btn-primary logout" value="LOGOUT" onclick="logOut();" />
+    </div>
+    <div class="left-nav"></div>
     <div class="container" style="display: none;">
 
         <h2>Edit Concept</h2>
@@ -100,11 +134,7 @@
             <div class="form-group">
                 <label for="status">Status:</label>
                 <select class="form-control" id="status" placeholder="Enter status">
-                    <option value="In progress">In progress</option>
-                    <option value="Pending Approval">Pending Approval</option>
-                    <option value="Approved" disabled>Approved</option>
-                    <option value="Rejected" disabled>Rejected</option>
-                    <option value="Develop Further" disabled>Develop Further</option>
+                   
                 </select>
             </div>
 
@@ -114,11 +144,7 @@
     </div>
 </body>
 	<script type="text/javascript">
-		var crew_map = {
-			"Addtional Camera": "addtional_camera",
-			"Sound": "sound",
-			"Visual Effects": "visual_effects"
-		}
+		
         var all_crew;
 		var concept_id;
 		var SERVER_URL = "http://localhost:5000";
@@ -129,13 +155,21 @@
             return input_str.replace(" ", "");
         }
 
+        function logOut()
+        {
+            console.log("In logout");
+            Cookies.remove('token');
+            $(".container").hide();
+        }
+
 		$(document).ready(function(){
 			
 			var pairs = document.URL.split('?')
 			           .pop()
-			
-			concept_id = pairs.split('=')[1];
-
+		  
+            pairs = pairs.split("&")	
+			concept_id = pairs[0].split('=')[1];
+            ROLE = pairs[1].split('=')[1];
             
 		
 			$.ajax({
@@ -144,6 +178,7 @@
                 crossDomain: true,
                 headers: { 'token': cookie_token },
                 success: function(data){
+                    
                     $(".container").show();
                     $.ajax({
                         url: SERVER_URL + "/crew",
@@ -167,7 +202,7 @@
 
                     concept_details = JSON.parse(data);
                     
-                 	console.log(concept_details.concept_note);
+                 	console.log(concept_details.status);
 
                    
                  	$("#concept_title").val(concept_details.concept_title);
@@ -178,13 +213,34 @@
                  	$("#embeded-link").val(concept_details.embeded_links);
                  	$("#shoot_days").val(concept_details.shoot_days);
                  	$("#set_and_art").val(concept_details.set_and_art);
-                    $("#status").val(concept_details.status[0]);
+
+                    if (ROLE == "Admin" || ROLE == "EP"){
+                        var options_select = $("<option value=\"In progress\">In progress</option>"+
+                            "<option value=\"Pending Approval\">Pending Approval</option>" +
+                            "<option value=\"Approved\">Approved</option>" +
+                            "<option value=\"Rejected\">Rejected</option>" +
+                            "<option value=\"Develop Further\">Develop Further</option>"
+                        );
+                        $("#status").append(options_select); 
+                    }
+                    else {
+
+                        var options_select = $("<option value=\"In progress\">In progress</option>"+
+                            "<option value=\"Pending Approval\">Pending Approval</option>" +
+                            "<option value=\"Approved\" disabled>Approved</option>" +
+                            "<option value=\"Rejected\" disabled>Rejected</option>" +
+                            "<option value=\"Develop Further\" disabled>Develop Further</option>"
+                        );
+                        $("#status").append(options_select); 
+                    }
+
+                    $("#status").val(concept_details.status);
                  	$("#crew").val(concept_details.crew);
 
                  	crew_data = concept_details.crew;
                     //crew_data = crew_data[0].split(",");
                     for (var index in crew_data){
-                        console.log("Existing crew from this concept  "+crew_data[index]);
+                        //console.log("Existing crew from this concept  "+crew_data[index]);
                         if (document.getElementById(convert_to_id( crew_data[index] )) != null){
                             $("#" + convert_to_id(crew_data[index])).prop("checked", "true");
                         }
@@ -194,9 +250,9 @@
                             $("#" + convert_to_id(crew_data[index])).prop("checked", "true");
                         }
                     }
-                 	$("#total_budget").val(data.total_budget);
-                 	$("#talent_costs").val(data.talent_costs);
-                 	$("#status").val(data.status);
+                 	$("#total_budget").val(concept_details.total_budget);
+                 	$("#talent_costs").val(concept_details.talent_costs);
+                 	
                 },
                 error: function(data){
                     window.location.href = BASE_URL+"/";
@@ -219,7 +275,7 @@
             $.each($("input[name='crew']:checked"), function(){
                 if($(this).attr("id") == "other"){
                     var other_crews = $("#other-crew").val().split(",")
-                    console.log("Other crews   "+other_crews);
+                    //console.log("Other crews   "+other_crews);
                     for (var cre=0; cre < other_crews.length; cre++){
                         crew_set.push(other_crews[cre]);    
                     }
@@ -232,10 +288,10 @@
 	            } 
 	        }*/
 	 
-            console.log("Final crew==" + crew_set);
+            //console.log("Final crew==" + crew_set);
 
             //crew_set = crew_set.split(",");
-            console.log(CKEDITOR.instances.editor1.getData());
+            //console.log(CKEDITOR.instances.editor1.getData());
 			var formData = new FormData();
             formData.append("concept_title", $("#concept_title").val())
             formData.append("producer", $("#producer").val())
@@ -264,7 +320,6 @@
                 processData: false,
                 success: function(data){
                     data = JSON.parse(data);
-                 	console.log(data)
                  	$('#concept_form').remove();
                  	$(".container").append($("<label>Edited Succesfully.</label>"))
                  	
@@ -276,7 +331,7 @@
             for(var index in all_crew){
                 db_crews.push(all_crew[index]["crew_name"]);
             }
-            console.log("crews_to_be_added_to_db----------->>> ");
+            
             for (var i=0; i < crew_set.length; i++){
                 if (!(crew_set[i] in db_crews)){
                     crews_to_be_added_to_db.push(crew_set[i]);
@@ -284,7 +339,7 @@
             }
 
 
-            console.log("crews_to_be_added_to_db----------->>> "+ crews_to_be_added_to_db);
+            
             for(var i=0; i < crews_to_be_added_to_db.length; i++){
                 
                 var crew_details = {                                                    
@@ -364,12 +419,10 @@
         });
         $("#other").on('click', function(){ 
             if ($("#other").is(":checked") == true) {
-                console.log("checked");
                 $('#other-crew').show();
                 
             }
             else{
-                console.log("Not checked");
                 $('#other-crew').hide();
             }
         })
