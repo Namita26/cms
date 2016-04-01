@@ -9,5 +9,5 @@ def handle_request(concept_id):
     if concept_id == 'all':
         concept = get_all_concepts()
     else:
-        concept = get_concept(concept_id)
+        concept = get_concept(long(concept_id))
     return json.dumps(concept)
