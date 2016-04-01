@@ -10,6 +10,7 @@
     <script src="/static/js/ckeditor/ckeditor.js"></script>
     <script src="/static/js/main.js"></script>
     <script src="/static/js/js.cookie.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
 
    
 
@@ -24,8 +25,12 @@
             /*background: #C2DFFF;*/
         }
         .top-nav {
-            height: 30px;
-            /*border: 1px solid;*/
+            height: 60px;
+            border: 1px solid;
+        }
+        .logout {
+            margin-top:10px;
+            float: right;
         }
         .container {
             width: 87%;
@@ -45,7 +50,12 @@
 
 <body>
 
-    <div class="top-nav"></div>
+    <div class="top-nav">
+        <input type="button" class="btn btn-primary logout" value="LOGOUT" onclick="logOut();"/> 
+        <div id="created-success" style="display: none;">
+            Concept Created Successfully.
+        </div>
+    </div>
     <div class="left-nav"></div>
 
    <div class="container" style="display: none;">
@@ -113,9 +123,6 @@
 
             <div class="form-group" id="checkboxes">
                 <label for="crew">Crew:</label>
-                <label><input type="checkbox" style="margin-left: 10px;" value="Sound" id="sound" placeholder="Enter crew" name="crew">  Sound</label>
-                <label><input type="checkbox" style="margin-left: 10px;" value="Addtional Camera" id="addtional_camera"  name="crew">  Additional Camera</label>
-                <label><input type="checkbox" style="margin-left: 10px;" value="Visual Effects" id="visual_effects" name="crew">  Visual Effects</label>
                 <label><input type="checkbox" style="margin-left: 10px;" id="other" name="crew">  Other</label>
                 <input id="other-crew" class="checkboxes-layout" name="crew" style="display: none;"></input>
             </div>
@@ -128,11 +135,7 @@
             <div class="form-group">
                 <label for="status">Status:</label>
                 <select class="form-control" id="status" placeholder="Enter status">
-                    <option value="In progress">In progress</option>
-                    <option value="Pending Approval">Pending Approval</option>
-                    <option value="Approved" disabled>Approved</option>
-                    <option value="Rejected" disabled>Rejected</option>
-                    <option value="Develop Further" disabled>Develop Further</option>
+                    
                 </select>
             </div>
 
@@ -142,11 +145,26 @@
     </div>
     <script type="text/javascript">
 
-        var SERVER_URL = "http://localhost:5000"; 
+
+        //var SERVER_URL = "http://localhost:5000"; 
         var uploaded_file_link = null;
         var is_uploading = false;
         var crew_set = [];
         var cookie_token = Cookies.get('token');
+
+        var query_params = document.URL.split(  '?')
+                       .pop()
+        var ROLE = query_params.split("=")[1];
+
+        function logOut()
+        {
+            console.log("In logout");
+            Cookies.remove('token');
+            $(".container").hide();
+        }
+        function convert_to_id(input_str){
+            return input_str.replace(" ", "");
+        }
 
         $(document).ready(function(){
             if (cookie_token != null){
@@ -155,13 +173,48 @@
             else{
                 window.location.href = BASE_URL;
             }
+
+            $.ajax({
+                url: SERVER_URL + "/crew",
+                type: "GET",
+                success: function(data){
+                    all_crew = JSON.parse(data);
+                   
+                    for (index in all_crew){
+                        if (document.getElementById(convert_to_id( all_crew[index]['crew_name'] )) == null)
+                        {
+                            var each_crew = $("<label><input type=\"checkbox\" style=\"margin-left: 10px;\" value=\"" + all_crew[index]['crew_name'] + "\" id=\""+ convert_to_id(all_crew[index]['crew_name']) +"\" name=\"crew\">"+ all_crew[index]['crew_name'] +"</label>");
+                            $("#checkboxes").append(each_crew);
+                        }
+                    }
+                }
+            });
+
+            if (ROLE == "Admin" || ROLE == "EP"){
+                var options_select = $("<option value=\"In progress\">In progress</option>"+
+                    "<option value=\"Pending Approval\">Pending Approval</option>" +
+                    "<option value=\"Approved\">Approved</option>" +
+                    "<option value=\"Rejected\">Rejected</option>" +
+                    "<option value=\"Develop Further\">Develop Further</option>"
+                );
+                $("#status").append(options_select); 
+            }
+            else {
+            
+                var options_select = $("<option value=\"In progress\">In progress</option>"+
+                    "<option value=\"Pending Approval\">Pending Approval</option>" +
+                    "<option value=\"Approved\" disabled>Approved</option>" +
+                    "<option value=\"Rejected\" disabled>Rejected</option>" +
+                    "<option value=\"Develop Further\" disabled>Develop Further</option>"
+                );
+                $("#status").append(options_select); 
+            }
         })
         function create_new_concept()
         {
             /*if (is_uploading){
                 setTimeout(function(){create_new_concept()}, 3000);   
             }*/
-            console.log("In here");
             $.each($("input[name='crew']:checked"), function(){
                 if($(this).attr("id") == "other"){
                     var others = $("#other-crew").val().split(",");
@@ -208,6 +261,9 @@
                 processData: false,
                 success: function(data){
                     console.log("Concept stored!!! Hurrey :D");
+                    $(".container").hide();
+                    $("#created-success").show();
+
                 }
             });
         };
@@ -249,11 +305,8 @@
                 type: "GET",
                 success: function(data){
                     data = JSON.parse(data);
-                    console.log(data.embeded_link);
                     var uploaded_file = $(data.embeded_link);
-                    console.log(uploaded_file);
                     $("#uploaded_files").append(uploaded_file);
-                    console.log("embeded-link ho gaya");
                 }
             }); 
         });
@@ -267,7 +320,7 @@
             is_uploading = true;
             var formData = new FormData();
             formData.append('file', $( '#file-1' )[0].files[0]);
-            console.log(formData);
+            
 
             $.ajax({
                 url: SERVER_URL + "/file_upload",
@@ -280,7 +333,7 @@
                     //TODO: show_loader
                     data = JSON.parse(data);
                     uploaded_file_link = data.google_store_file_path;
-                    console.log(uploaded_file_link);
+                    
                 },
                 complete: function(data){
                     is_uploading = false;
@@ -295,21 +348,67 @@
             else{
                 $(this).css("border", "");
             }
-        })
+        });
+
         $("#other").on('click', function(){ 
             if ($("#other").is(":checked") == true) {
-                console.log("checked");
                 $('#other-crew').show();
                 
             }
             else{
-                console.log("Not checked");
                 $('#other-crew').hide();
             }
-        })
-        
+        });
+        $("#concept_title").on('blur', function(){ 
+            
+            
+            if (typeof $(this).val() != 'string'){
+                $("#concept_title").css("border", "1px solid red");
+                //alert("Title should contain alphanumeric values.")
+            }
+            else{
+                $("#concept_title").css("border", "");
+            }
+        });
 
+
+        $("#producer").on('blur', function(){ 
+            if (typeof $(this).val() != 'string'){
+                $("#producer").css("border", "1px solid red");
+                //alert("producer should contain string values.")
+            }
+            else{
+                $("#producer").css("border", "");
+            }
+        });
+
+
+        $("#talent").on('blur', function(){ 
+            if (typeof $("#talent").val() != 'string'){
+                $("#talent").css("border", "1px solid red");
+                //alert("Talent should contain string values.")
+            }
+            else{
+                $("#talent").css("border", "");
+            }
+        });
+
+
+        $("#no_of_videos").on('blur', function(){
+
+            if (typeof $(this).val() < 0){
+                $("#no_of_videos").css("border", "1px solid red");
+                //alert("No of videos should contain numeric values.")
+            }
+            else{
+                $("#no_of_videos").css("border", "");
+            }
+        });
+
+        
+        
     </script>
+
 
 </body>
 </html>
