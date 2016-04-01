@@ -30,8 +30,10 @@ class Auth(Resource):
         # if 'glamrs.com' != idinfo['hd']:
             abort(401, message="The "+ idinfo['email'] + "is not an authorised user.")
         else:
-            if get_user(idinfo["email"], token):
-                response = flask.Response(idinfo)
+            op_user = get_user(idinfo["email"], token)
+            if op_user.get('is_user', ""):
+                idinfo['role'] = op_user['role']
+                response = flask.Response(json.dumps(idinfo))
                 # response.set_cookie('token',value=token)
                 # response.set_cookie('user_email',value=idinfo['email'])
                 return response
