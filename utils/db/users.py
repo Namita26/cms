@@ -52,6 +52,18 @@ def add_user(user_details):
     return user.key
 
 
+def get_single_user(userid):
+    key = CLIENT.key('Users', userid)
+    user = CLIENT.get(key)
+    if user == None:
+        return {
+                'response_data': {
+                    'message': "User {} does not exist.".format(userid)
+                } 
+            }
+    return dict(user)
+
+
 def get_all_users():
     """
     Return all crews present in Kind=Crews.
@@ -102,7 +114,8 @@ def get_user(email, token):
             for column in user_details.keys():
                 user_to_be_updated[column] = user_details[column]
             CLIENT.put(user_to_be_updated)
-        return True
+            # role = dict(get_single_user(user_details[id]))['role']
+        return {"is_user": True, "role": dict(get_single_user(user_details['id']))['role']}
 
 
 def is_valid_token(token):
