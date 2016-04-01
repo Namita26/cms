@@ -58,6 +58,10 @@
 			border-left: 1px solid #000;
 			border-right: 1px solid #000;
 		}
+		.logout {
+            margin-top:10px;
+            float: right;
+        }
 
 		
 
@@ -70,8 +74,7 @@
 		
 		<div class="container" style="display: none;">
 			<div class="left-nav">
-			
-				
+				<input type="button" class="btn btn-primary logout" value="LOGOUT" onclick="logOut();" />
 			</div>
 			<table id="concepts-list" style="border: 1px solid;" class="table table-hover">
 				<thead>
@@ -91,7 +94,7 @@
 					</tr>
 				</thead>
 			</table>
-			<input type="button" class="btn btn-primary create-concept" value="New Concept " onclick="window.open('http://localhost/templates/concept_creation.html', '_blank');" />
+			<input type="button" class="btn btn-primary create-concept" value="New Concept " onclick="window.open('http://localhost/templates/concept_creation.html?ROLE='+ROLE, '_blank');" />
 		</div>
 			
 
@@ -99,11 +102,22 @@
 	</body>
 	<script type="text/javascript">
 
+		function logOut()
+        {
+            console.log("In logout");
+            Cookies.remove('token');
+            $(".container").hide();
+            window.location.href = BASE_URL;
+        }
+
 		var SERVER_URL = "http://localhost:5000"; 
 		cookie_token = Cookies.get('token');
 		$(document).ready(function(){
-			console.log("Here in document.ready");
-			console.log(Cookies.get('token'))
+			var pairs = document.URL.split('?')
+			           .pop()
+			
+			ROLE = pairs.split('=')[1];
+
 			
 			if (cookie_token != null){
 				get_all_concepts(cookie_token)
@@ -128,7 +142,7 @@
 	            success: function(data){
 	                data = JSON.parse(data);
 	                var allConcepts = data;
-	                console.log(allConcepts);
+	                
 	                for(var x in data){
 	                	
 	                	var linksHtml = "<td class=\"col-md-2\" >";
@@ -163,7 +177,7 @@
 
 
 	                	var table_row = $(
-	                		"<tr id="+data[x]["name"]+"><td>"+ data[x]["created"] +"</td>" +
+	                		"<tr id="+data[x]["id"]+"><td>"+ data[x]["created"] +"</td>" +
 	                		"<td>"+ data[x]["concept_title"] +"</td>"+
 	                		"<td>"+ data[x]["producer"] +"</td>"+
 	                		
@@ -174,11 +188,11 @@
 	                		"<td>"+ data[x]["concept_note"] +"</td>" +*/
 	                		"<td>"+ data[x]["shoot_days"] +"</td>" +
 	                		"<td>"+ data[x]["status"] +"</td>" +
-	                		"<td><input type=\"button\" class=\"btn btn-info edit-concept\" concept-id=" + data[x]["name"] + " value=\" EDIT \" /></td>" +
-	                		"<td><input type=\"button\" class=\"btn btn-danger delete-concept\"  concept-id=" + data[x]["name"] + " value=\" DELETE \" /></td></tr>" +
+	                		"<td><input type=\"button\" class=\"btn btn-info edit-concept\" concept-id=" + data[x]["id"] + " value=\" EDIT \" /></td>" +
+	                		"<td><input type=\"button\" class=\"btn btn-danger delete-concept\"  concept-id=" + data[x]["id"] + " value=\" DELETE \" /></td></tr>" +
 	                		/*linksHtml +
 	                		storageFilesHtml + */
-	                		"<tr style='display:none;'><td class='row-header'><b>Concept ID: </b></td><td>"+ data[x]["name"] +"</td></tr>" 
+	                		"<tr style='display:none;'><td class='row-header'><b>Concept ID: </b></td><td>"+ data[x]["id"] +"</td></tr>" 
 	                		
 	                	);
 	                	$("#concepts-list").append(table_row);
@@ -187,7 +201,7 @@
 
 	                $(".edit-concept").click(function(e){
 	                	var concept = ($(this).attr('concept-id'));
-	                	window.open('http://localhost/templates/concept_edit.html?concept='+concept, '_blank');
+	                	window.open('http://localhost/templates/concept_edit.html?concept='+concept+"&ROLE="+ROLE, '_blank');
 	                })
 
 	                $(".delete-concept").click(function(e){
@@ -206,8 +220,7 @@
 	                })
 	            },
 	            error: function(data){
-	            	console.log(data);
-	            	console.log("Not Authorised");
+	            	window.location.href = BASE_URL + "/templates/unauthorised.html";
 	            }
 
 	        });
