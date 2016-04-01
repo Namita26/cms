@@ -25,5 +25,5 @@ def handle_request(concept_id, request_details):
         'talent_costs': request_details['talent_costs'][0]
     }
 
-    concept_id = update_concept(concept_id, modified_request_details)
+    concept_id = update_concept(long(concept_id), modified_request_details)
     return json.dumps({"message": str(concept_id) + "is edited"})
