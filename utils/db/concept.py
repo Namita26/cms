@@ -33,9 +33,6 @@ def add_concept(concept_details):
     concept = datastore.Entity(
             key, exclude_from_indexes=['concept_note'])
 
-    print "\n---------------In add concept----------------\n"
-    print concept_details
-    print "\n-----------------\n"
 
     concept.update({
         'created': datetime.datetime.utcnow().strftime('%Y-%m-%d %h-%m-%s'),
@@ -63,8 +60,6 @@ def update_concept(concept_id, concept_details):
     key = CLIENT.key('Concepts', concept_id)
     concept = CLIENT.get(key)
 
-    print "*****************\n\n", concept_details
-    print "*****************\n\n"
     if not concept:
         raise ValueError(
                 'Concept {} does not exist.'.format(concept_id)
