@@ -1,5 +1,6 @@
 var SERVER_URL = "http://localhost:5000";
 var BASE_URL = "http://localhost";
+var ROLE = "";
 
 function validate_token(id_token){
 	console.log("In validate token");
@@ -8,15 +9,23 @@ function validate_token(id_token){
 	      type: 'GET',
 	      data: {"id_token": id_token},
 	      success: function(data){
-	      	  // TODO : store the token in the cookie using jquery cookie
-	      	  console.log("In succes of idtoken-------------------")
-	      	  console.log(data)
-	          window.location.href = BASE_URL + "/templates/dashboard.html";
+	      	  data = JSON.parse(data);
+	      	  ROLE = data.role;
+	      	  
+	          window.location.href = BASE_URL + "/templates/dashboard.html?role="+ROLE;
 	      },
 	      error: function(data){
-	      	  // TODO : Get the message from the server.
-	      	  console.log(data);
 	      	  window.location.href = BASE_URL + "/templates/unauthorised.html";
 	      }
 	  });
 }
+
+  function signOut() {
+  	
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+  }
+
+
