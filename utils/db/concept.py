@@ -21,14 +21,14 @@ def create_client():
 CLIENT = create_client()
 
 
-def create_key(kind, primary_key):
-    key = CLIENT.key(kind, primary_key)  # for primary key, an entity indentifier value
+def create_key(kind):
+    key = CLIENT.key(kind)  # for primary key, an entity indentifier value
     return key
 
 
 def add_concept(concept_details):
 
-    key = create_key('Concepts', 'seventh')
+    key = create_key('Concepts')
 
     concept = datastore.Entity(
             key, exclude_from_indexes=['concept_note'])
@@ -91,7 +91,7 @@ def get_all_concepts():
     all_list = list(query.fetch())
     for i in all_list:
         s = dict(i)
-        s['name'] = i.__dict__['key'].name
+        s['id'] = i.__dict__['key'].id
         all_concepts.append(s)
 
     return all_concepts
