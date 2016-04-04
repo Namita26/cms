@@ -97,7 +97,7 @@
 					</tr>
 				</thead>
 			</table>
-			<input type="button" class="btn btn-primary create-concept" value="New Concept " onclick="window.open(BASE_URL + '/templates/concept_creation.html?ROLE='+ROLE, '_blank');" />
+			<input type="button" class="btn btn-primary create-concept" value="New Concept " onclick="window.open(BASE_URL + '/templates/concept_creation.html?ROLE='+ROLE+'&email='+useremail, '_blank');" />
 		</div>
 			
 
@@ -119,8 +119,8 @@
 			var pairs = document.URL.split('?')
 			           .pop()
 			
-			ROLE = pairs.split('=')[1];
-
+			ROLE = pairs.split('&')[0].split("=")[1];
+			useremail = pairs.split('&')[1].split("=")[1];
 			
 			if (cookie_token != null){
 				get_all_concepts(cookie_token)
@@ -140,6 +140,7 @@
 			$.ajax({
 	            url: SERVER_URL + "/concept",
 	            type: "GET",
+	            data: {"useremail": useremail},
 	            crossDomain: true,
 	            headers: { 'token': cookie_token },
 	            success: function(data){
@@ -204,7 +205,7 @@
 
 	                $(".edit-concept").click(function(e){
 	                	var concept = ($(this).attr('concept-id'));
-	                	window.open(BASE_URL +'/templates/concept_edit.html?concept='+concept+"&ROLE="+ROLE, '_blank');
+	                	window.open(BASE_URL +'/templates/concept_edit.html?concept='+concept+"&ROLE="+ROLE+"&email="+useremail, '_blank');
 	                })
 
 	                $(".delete-concept").click(function(e){
@@ -213,6 +214,7 @@
 						$.ajax({
 			                url: SERVER_URL +"/concept/" + concept_id,
 			                type: "DELETE",
+			                data: {"useremail": useremail},
 			                crossDomain: true,
 	            			headers: { 'token': cookie_token },	
 			                success: function(data){
