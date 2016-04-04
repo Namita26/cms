@@ -18,14 +18,11 @@ class FileUpload(Resource):
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        app.logger.info('Received request for Concept creation')
+        app.logger.info('Received request for Concept support file upload')
         destination_filepath = "concept/" + generate_random_string(10) + "/" + filename
         x = upload_object(
             "datastore1-1226.appspot.com",
             os.path.join(app.config['UPLOAD_FOLDER'], filename),
             destination_filepath
         )
-        print "\n-------------\n"
-        print x
-        print "\n-------------\n"
         return json.dumps({"google_store_file_path": x['mediaLink']})
