@@ -267,9 +267,10 @@
                 cache: false,
                 processData: false,
                 success: function(data){
-                    console.log("Concept stored!!! Hurrey :D");
-                    $(".container").hide();
                     $("#created-success").show();
+                    window.close();
+                    $(".container").hide();
+                    
 
                 }
             });
