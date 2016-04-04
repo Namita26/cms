@@ -97,7 +97,7 @@
 					</tr>
 				</thead>
 			</table>
-			<input type="button" class="btn btn-primary create-concept" value="New Concept " onclick="window.open('http://localhost/templates/concept_creation.html?ROLE='+ROLE, '_blank');" />
+			<input type="button" class="btn btn-primary create-concept" value="New Concept " onclick="window.open(BASE_URL + '/templates/concept_creation.html?ROLE='+ROLE, '_blank');" />
 		</div>
 			
 
@@ -204,14 +204,14 @@
 
 	                $(".edit-concept").click(function(e){
 	                	var concept = ($(this).attr('concept-id'));
-	                	window.open('http://localhost/templates/concept_edit.html?concept='+concept+"&ROLE="+ROLE, '_blank');
+	                	window.open(BASE_URL +'/templates/concept_edit.html?concept='+concept+"&ROLE="+ROLE, '_blank');
 	                })
 
 	                $(".delete-concept").click(function(e){
 	                	alert("In delete");
 						var concept_id = ($(this).attr('concept-id'));
 						$.ajax({
-			                url: "http://localhost:5000/concept/" + concept_id,
+			                url: BASE_URL +"/concept/" + concept_id,
 			                type: "DELETE",
 			                crossDomain: true,
 	            			headers: { 'token': cookie_token },	
@@ -229,5 +229,4 @@
 	        });
 		}
 		</script>
-
 </html>
