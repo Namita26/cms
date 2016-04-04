@@ -11,8 +11,8 @@ function validate_token(id_token){
 	      success: function(data){
 	      	  data = JSON.parse(data);
 	      	  ROLE = data.role;
-	      	  
-	          window.location.href = BASE_URL + "/templates/dashboard.html?role="+ROLE;
+	      	  useremail = data.email;
+	          window.location.href = BASE_URL + "/templates/dashboard.html?role="+ROLE+"&email="+useremail;
 	      },
 	      error: function(data){
 	      	  window.location.href = BASE_URL + "/templates/unauthorised.html";
