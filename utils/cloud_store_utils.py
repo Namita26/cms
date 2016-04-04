@@ -18,8 +18,7 @@ def upload_object(bucket, source_filepath, destination_filepath):
     # This is the request body as specified:
     # http://g.co/cloud/storage/docs/json_api/v1/objects/insert#request
     body = {
-        'name': destination_filepath,
-
+        'name': destination_filepath
     }
 
     # Now insert them into the specified bucket as a media insertion.
