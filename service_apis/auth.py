@@ -18,14 +18,12 @@ USERS = [
 class Auth(Resource):
 
     def get(self):
-        print "In get--------------------\n\n"
         APPS_DOMAIN_NAME = get_app_domain_name()
 
         CLIENT_ID = get_client_id()
 
         token = request.args.get('id_token')
         idinfo = client.verify_id_token(token, CLIENT_ID)
-        print idinfo
         if 'glamrs.com' not in idinfo['email']:
         # if 'glamrs.com' != idinfo['hd']:
             abort(401, message="The "+ idinfo['email'] + "is not an authorised user.")
