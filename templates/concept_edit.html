@@ -428,7 +428,36 @@
             else{
                 $('#other-crew').hide();
             }
-        })
+        });
+
+        function parse_crew(all_crew){
+            var all_db_crews = []; 
+            for(var i in all_crew){
+                all_db_crews.push(all_crew[i]['crew_name'].toLowerCase());
+            }
+            return all_db_crews
+        }
+
+        $("#other-crew").on('blur', function(){
+            alert("In other crew blur")
+
+            var entered_other_crews = $("#other-crew").val().split(",");
+
+            all_db_crews = parse_crew(all_crew);
+            for (var index in entered_other_crews)
+            {
+                if (all_db_crews.includes(entered_other_crews[index]))
+                {
+                    $("#other-crew").css("border", "1px solid red");
+                    alert(entered_other_crews[index] + "  Crew already present! Please mark it checked")
+                }
+                else
+                {
+                  $("#other-crew").css("border", "");  
+                }
+            }
+        });
+
 
         
 	</script>
