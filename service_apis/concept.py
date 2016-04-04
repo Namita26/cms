@@ -17,7 +17,7 @@ class ConceptList(Resource):
         This method edits a Concept using paramters passed in the request
         """
         app.logger.debug('Received get all concepts request')
-        return get_concept_handler.handle_request(concept_id="all")
+        return get_concept_handler.handle_request({"concept_id": "all", "useremail": request.args.get("useremail", "")})
 
     def post(self):
         """
