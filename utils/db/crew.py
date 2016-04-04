@@ -36,23 +36,32 @@ def add_crew(crew_details):
     :return type: <Key[{'kind': 'Crews', 'id': 5654313976201216L}], project=datastore1-1226>
 
     """
+    existing_crews = []
+    query = CLIENT.query(kind='Crews')
+    for i in list(query.fetch()):
+        existing_crews.append(dict(i)['crew_name'])
 
-    print crew_details
+    if not (crew_details['crew_name'][0] in existing_crews or crew_details['crew_name'][0].lower() in existing_crews):
+        key = create_key('Crews')
 
-    key = create_key('Crews')
+        crew = datastore.Entity(key)
 
-    crew = datastore.Entity(key)
+        crew.update(
+            {
+                "crew_name": crew_details["crew_name"][0],  # crew name (Like Sound team, visuals team etc)
+                "added_date": datetime.datetime.utcnow().strftime('%Y-%m-%d %h-%m-%s'), # On which date it has got added.
+                "user_id": crew_details["user_id"][0]   # to see who has added this
+            }
+        )
+        CLIENT.put(crew)
 
-    crew.update(
-        {
-            "crew_name": crew_details["crew_name"][0],  # crew name (Like Sound team, visuals team etc)
-            "added_date": datetime.datetime.utcnow().strftime('%Y-%m-%d %h-%m-%s'), # On which date it has got added.
-            "user_id": crew_details["user_id"][0]   # to see who has added this
-        }
-    )
-    CLIENT.put(crew)
-
-    return crew.key
+        return crew.key
+    else:
+        return {
+                'response_data': {
+                    'message': "Crew {} already exists.".format(crew_details["crew_name"][0])
+                }
+            }
 
 
 def get_crew(crew_id):
