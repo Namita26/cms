@@ -158,7 +158,8 @@
 
         var query_params = document.URL.split(  '?')
                        .pop()
-        var ROLE = query_params.split("=")[1];
+        ROLE = query_params.split('&')[0].split("=")[1];
+        useremail = query_params.split('&')[1].split("=")[1];
 
         function logOut()
         {
@@ -213,7 +214,8 @@
                 );
                 $("#status").append(options_select); 
             }
-        })
+        });
+
         function create_new_concept()
         {
             /*if (is_uploading){
@@ -253,6 +255,7 @@
             formData.append("file_storage_url", uploaded_file_link)
             formData.append("embeded_links", $("#embeded-link").val())
             formData.append("status", $("#status option:selected").text())
+            formData.append("useremail", useremail)
 
             $.ajax({
                 url: SERVER_URL+"/concept",
