@@ -94,7 +94,7 @@ class Concept(Resource):
         app.logger.debug('Received concept deletion request: %s',
             concept_id)
 
-        return delete_concept_handler.handle_request(concept_id)
+        return delete_concept_handler.handle_request(long(concept_id))
 
     def put(self, concept_id):
         """
