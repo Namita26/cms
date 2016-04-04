@@ -139,7 +139,7 @@
                 </select>
             </div>
 
-            <input type="button" class="btn btn-info" onclick="edit_concept();" value="EDIT" />
+            <input id="save-concept" type="button" class="btn btn-info" onclick="edit_concept();" value="SAVE" />
         </form>
 
     </div>
@@ -322,7 +322,9 @@
                 success: function(data){
                     data = JSON.parse(data);
                  	$('#concept_form').remove();
-                 	$(".container").append($("<label>Edited Succesfully.</label>"))
+                    $(".container").append($("<label>Edited Succesfully.</label>"))
+                    window.close();
+                 	
                  	
                 }
             });
