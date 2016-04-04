@@ -42,6 +42,7 @@
     	.container {
     		width: 87%;
     		min-height:500px;
+    		display: none;
     	}
     	.row-header {
     		width: 150px;
@@ -75,7 +76,7 @@
 
 	<body >
 		
-		<div class="container" style="display: none;">
+		<div class="container">
 			<div class="left-nav">
 				<input type="button" class="btn btn-primary logout" value="LOGOUT" onclick="logOut();" />
 			</div>
@@ -146,7 +147,18 @@
 	            success: function(data){
 	                data = JSON.parse(data);
 	                var allConcepts = data;
+	                if (data.length == 0){
+	                	
+	                	$("concepts-list").hide();
+	                	var no_concepts_message = $("<label>You have not created any concept till now! Want to create one ?</label>");
 	                
+	                	$('.container').append(no_concepts_message)
+	                }
+	                else{
+	                	
+	                	$("concepts-list").show();
+	                }
+
 	                for(var x in data){
 	                	
 	                	var linksHtml = "<td class=\"col-md-2\" >";
