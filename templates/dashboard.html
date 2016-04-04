@@ -211,7 +211,7 @@
 	                	alert("In delete");
 						var concept_id = ($(this).attr('concept-id'));
 						$.ajax({
-			                url: BASE_URL +"/concept/" + concept_id,
+			                url: SERVER_URL +"/concept/" + concept_id,
 			                type: "DELETE",
 			                crossDomain: true,
 	            			headers: { 'token': cookie_token },	
