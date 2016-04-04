@@ -30,8 +30,6 @@ def add_user(user_details):
 
     """
 
-    print user_details
-
     key = create_key('Users')
 
     user = datastore.Entity(key)
@@ -98,9 +96,6 @@ def get_user(email, token):
     for user in list(query.fetch()):
         user_details = dict(user)
         user_details['id'] = user.__dict__['key'].id
-    print "\n--------------------\n"
-    print user_details
-    print "\n--------------------\n"
     if user_details == {}:
         return False
     else:
@@ -125,13 +120,11 @@ def is_valid_token(token):
     :return_type:
     """
     user_email = False
-    print "\n\n=-------------------In token Validation------------\n\n"
     query = CLIENT.query(kind='Users')
     query.add_filter("token", "=", token)
     for user in list(query.fetch()):
         user_email = dict(user)['email']
     if user_email:
-        print "YEs----------------------"
         return {"is_valid": True, "email": user_email}
     else:
         return {"is_valid": False}
