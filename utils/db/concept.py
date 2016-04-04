@@ -48,7 +48,8 @@ def add_concept(concept_details):
         'total_budget': concept_details['total_budget'][0],
         'file_storage_url': concept_details['file_storage_url'][0],
         'embeded_links': concept_details['embeded_links'],
-        'status': concept_details['status'][0]
+        'status': concept_details['status'][0],
+        'creator': concept_details['useremail'][0]
     })
 
     CLIENT.put(concept)
@@ -72,9 +73,9 @@ def update_concept(concept_id, concept_details):
 
     return concept.key
 
-def get_all_concepts():
+def get_all_concepts(useremail):
     query = CLIENT.query(kind='Concepts')
-    query.order = ['created']
+    query.add_filter("creator", "=", useremail)
     concepts = query.fetch()
     if concepts == None:
         return {
