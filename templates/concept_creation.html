@@ -255,7 +255,7 @@
             formData.append("status", $("#status option:selected").text())
 
             $.ajax({
-                url: "http://localhost:5000/concept",
+                url: SERVER_URL+"/concept",
                 type: "POST",
                 data: formData,
                 crossDomain: true,
@@ -305,7 +305,7 @@
 
         $("#embeded-link").on('blur', function(){
            $.ajax({
-                url: "http://localhost:5000/embeded_link/?url=" + $("#embeded-link").val(),
+                url: SERVER_URL+"/embeded_link/?url=" + $("#embeded-link").val(),
                 type: "GET",
                 success: function(data){
                     data = JSON.parse(data);
