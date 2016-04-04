@@ -8,52 +8,6 @@ from werkzeug import secure_filename
 import os
 from core.auth_resource import authenticate
 
-'''
-class Concept(Resource):
-    def post(self):
-        """
-        This method creates Concept using paramters passed in the request
-        """
-        concept = {}
-        concept = dict(request.form)
-
-        app.logger.info('Received request for Concept creation')
-
-        return post_concept_handler.handle_request(concept)
-
-
-    def put(self):
-        """
-        This method edits a Concept using paramters passed in the request
-        """
-        to_be_edited = dict(request.form)
-
-        app.logger.info('Received request for Concept editing with '+ to_be_edited + 'fields')
-
-        return put_concept_handler.handle_request(to_be_edited)
-
-    def get(self):
-        """
-        This method edits a Concept using paramters passed in the request
-        """
-        request_details = {}
-        if "content" in request.args:
-            request_details = json.loads(request.args['content'])
-        return get_concept_handler.handle_request(request_details)
-
-    def delete(self):
-        """
-        This method SHOULD archieve the concept :P
-        """
-
-        app.logger.debug('Received concept deletion request: %s',
-            request.args["content"])
-
-        request_details = {}
-        if "content" in request.args:
-            request_details = json.loads(request.args['content'])
-        return delete_concept_handler.handle_request(request_details)
-    '''
 
 class ConceptList(Resource):
     method_decorators = [authenticate]
@@ -114,7 +68,6 @@ class EmbededLink(Resource):
         """
         link = request.args["url"]
 
-        print link
         result = requests.get("https://www.youtube.com/oembed?url="+link)
         app.logger.debug('Received get EmbededLink request: %s', link)
         embeded_link = "<link>" + result.json()['html'] + "</link>"
