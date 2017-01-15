@@ -1,1 +1,23 @@
-<!DOCTYPE html><html><head> <meta charset="UTF-8"> <script src="/static/js/main.js"></script><script src="/static/js/jquery-1.12.2.min.js"></script><script src="/static/js/js.cookie.js"></script><title>Unauthorised</title><h2>You are unauthorised</h2><div id="message"></div><script type="text/javascript">$(document).ready(function(){Cookies.remove('token');$("#message").append("<div id="message">This page is only allowed for <b>Glamrs.com</b> members. <a href="+ BASE_URL +"> Sign In </a> with GLAMRS gmail id to continue.</div>");});</script></head><body></body></html>
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/jquery-1.12.2.min.js"></script>
+    <script src="/static/js/js.cookie.js"></script>
+    <title>Unauthorised</title>
+    <h2>You are unauthorised</h2>
+    <div id="message"></div>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            Cookies.remove('token');
+            $("#message").append("<div id="
+                message ">This page is only allowed for <b>Glamrs.com</b> members. <a href=" + BASE_URL + "> Sign In </a> with GLAMRS gmail id to continue.</div>");
+        });
+    </script>
+</head>
+
+<body></body>
+
+</html>
