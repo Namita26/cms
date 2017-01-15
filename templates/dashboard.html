@@ -1,1 +1,200 @@
-<!DOCTYPE html><html><head><title>Dashboard</title><meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/static/css/bootstrap.min.css"> <link rel="stylesheet" href="/static/js/jquery-ui.min.css"><script src="/static/js/jquery-1.12.2.min.js"></script> <script src="/static/js/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script> <script src="/static/js/jquery-ui.min.js"></script> <script src="/static/js/ckeditor/ckeditor.js"></script> <script src="/static/js/main.js"></script> <script src="/static/js/js.cookie.js"></script> <style type="text/css"> .collapsible-panel{margin: 20px 20px; margin-left: 40px;}.create-concept{margin: 20px; float: right;}.left-nav{float: left; width: 100%; height: 100px; margin-top: 10px; border: 1px solid;}.top-nav{height: 30px; /*border: 1px solid;*/}.container{width: 87%; min-height:500px; display: none;}.row-header{width: 150px;}a{color: #0000ff !important;}table{border: 1px solid;border-collapse: collapse;text-overflow: none;}table td{border-left: 1px solid #000;border-right: 1px solid #000;}.logout{margin-top:10px; float: right;}</style></head><body ><div class="container"><div class="left-nav"><input type="button" class="btn btn-primary logout" value="LOGOUT" onclick="logOut();"/></div><table id="concepts-list" style="border: 1px solid;" class="table table-hover"><thead><tr><th class="col-md-1">Created Date</th><th class="col-md-3">Title</th><th class="col-md-2">Producer</th><th class="col-md-1">Talent</th><th class="col-md-1">No of Videos</th><th class="col-md-1">Shoot Days</th><th class="col-md-1">Status</th><th class="col-md-1">EDIT</th><th class="col-md-1">DELETE</th></tr></thead></table><input type="button" class="btn btn-primary create-concept" value="New Concept " onclick="window.open(BASE_URL + '/templates/concept_creation.html?ROLE='+ROLE+'&email='+useremail, '_blank');"/></div></body><script type="text/javascript">function logOut(){console.log("In logout"); Cookies.remove('token'); $(".container").hide(); window.location.href=BASE_URL;}cookie_token=Cookies.get('token');$(document).ready(function(){var pairs=document.URL.split('?') .pop()ROLE=pairs.split('&')[0].split("=")[1];useremail=pairs.split('&')[1].split("=")[1];if (cookie_token !=null){get_all_concepts(cookie_token)}else{window.location.href=BASE_URL+"/";}});function get_all_concepts(cookie_token){$(".container").show();$.ajax({url: SERVER_URL + "/concept", type: "GET", data:{"useremail": useremail}, crossDomain: true, headers:{'token': cookie_token}, success: function(data){data=JSON.parse(data); var allConcepts=data; if (data.length==0){$("concepts-list").hide(); var no_concepts_message=$("<label>You have not created any concept till now! Want to create one ?</label>"); $('.container').append(no_concepts_message)}else{$("concepts-list").show();}for(var x in data){var linksHtml="<td class="col-md-2" >"; if (data[x]["embeded_links"]){var links=data[x]["embeded_links"][0].split(",") for (var index in links){var link=links[index] linksHtml +="<a href='"+link+"'>" + link + "</a>";}}linksHtml +="</td>"; var storageFilesHtml="<td class="col-md-2">"; if (data[x]["file_storage_url"]){var links=data[x]["file_storage_url"]; for (var index in links){var link=links[index] storageFilesHtml +="<a href='"+link+"'>" + link + "</a>";}}storageFilesHtml +="</td>"; var videoNamesFilesHtml="<td class="col-md-2">"; if (data[x]["video_names"]){var links=data[x]["video_names"][0].split(",") for (var index in links){var link=links[index] videoNamesFilesHtml +=link + ",";}}videoNamesFilesHtml +="</td>"; var table_row=$( "<tr id="+data[x]["id"]+"><td>"+ data[x]["created"] +"</td>" + "<td>"+ data[x]["concept_title"] +"</td>"+ "<td>"+ data[x]["producer"] +"</td>"+ "<td>"+ data[x]["talent"] +"</td>" + "<td>"+ data[x]["no_of_videos"] +"</td>" + /*videoNamesFilesHtml + "<td>"+ data[x]["concept_note"] +"</td>" +*/ "<td>"+ data[x]["shoot_days"] +"</td>" + "<td>"+ data[x]["status"] +"</td>" + "<td><input type="button" class="btn btn-info edit-concept" concept-id=" + data[x]["id"] + " value=" EDIT "/></td>" + "<td><input type="button" class="btn btn-danger delete-concept" concept-id=" + data[x]["id"] + " value=" DELETE "/></td></tr>" + /*linksHtml + storageFilesHtml + */ "<tr style='display:none;'><td class='row-header'><b>Concept ID: </b></td><td>"+ data[x]["id"] +"</td></tr>" ); $("#concepts-list").append(table_row);}$(".edit-concept").click(function(e){var concept=($(this).attr('concept-id')); window.open(BASE_URL +'/templates/concept_edit.html?concept='+concept+"&ROLE="+ROLE+"&email="+useremail, '_blank');}) $(".delete-concept").click(function(e){alert("In delete");var concept_id=($(this).attr('concept-id'));$.ajax({url: SERVER_URL +"/concept/" + concept_id, type: "DELETE", data:{"useremail": useremail}, crossDomain: true, headers:{'token': cookie_token}, success: function(data){data=JSON.parse(data); $("#"+concept_id).remove();}});})}, error: function(data){window.location.href=BASE_URL + "/templates/unauthorised.html";}});}</script></html>
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Dashboard</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/js/jquery-ui.min.css">
+    <script src="/static/js/jquery-1.12.2.min.js"></script>
+    <script src="/static/js/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/static/js/ckeditor/ckeditor.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/js.cookie.js"></script>
+    <style type="text/css">
+        .collapsible-panel {
+            margin: 20px 20px;
+            margin-left: 40px;
+        }
+        
+        .create-concept {
+            margin: 20px;
+            float: right;
+        }
+        
+        .left-nav {
+            float: left;
+            width: 100%;
+            height: 100px;
+            margin-top: 10px;
+            border: 1px solid;
+        }
+        
+        .top-nav {
+            height: 30px;
+            /*border: 1px solid;*/
+        }
+        
+        .container {
+            width: 87%;
+            min-height: 500px;
+            display: none;
+        }
+        
+        .row-header {
+            width: 150px;
+        }
+        
+        a {
+            color: #0000ff !important;
+        }
+        
+        table {
+            border: 1px solid;
+            border-collapse: collapse;
+            text-overflow: none;
+        }
+        
+        table td {
+            border-left: 1px solid #000;
+            border-right: 1px solid #000;
+        }
+        
+        .logout {
+            margin-top: 10px;
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left-nav">
+            <input type="button" class="btn btn-primary logout" value="LOGOUT" onclick="logOut();" />
+        </div>
+        <table id="concepts-list" style="border: 1px solid;" class="table table-hover">
+            <thead>
+                <tr>
+                    <th class="col-md-1">Created Date</th>
+                    <th class="col-md-3">Title</th>
+                    <th class="col-md-2">Producer</th>
+                    <th class="col-md-1">Talent</th>
+                    <th class="col-md-1">No of Videos</th>
+                    <th class="col-md-1">Shoot Days</th>
+                    <th class="col-md-1">Status</th>
+                    <th class="col-md-1">EDIT</th>
+                    <th class="col-md-1">DELETE</th>
+                </tr>
+            </thead>
+        </table>
+        <input type="button" class="btn btn-primary create-concept" value="New Concept " onclick="window.open(BASE_URL + '/templates/concept_creation.html?ROLE='+ROLE+'&email='+useremail, '_blank');" />
+    </div>
+</body>
+<script type="text/javascript">
+    function logOut() {
+        console.log("In logout");
+        Cookies.remove('token');
+        $(".container").hide();
+        window.location.href = BASE_URL;
+    }
+    cookie_token = Cookies.get('token');
+    $(document).ready(function() {
+        var pairs = document.URL.split('?').pop() ROLE = pairs.split('&')[0].split("=")[1];
+        useremail = pairs.split('&')[1].split("=")[1];
+        if (cookie_token != null) {
+            get_all_concepts(cookie_token)
+        } else {
+            window.location.href = BASE_URL + "/";
+        }
+    });
+
+    function get_all_concepts(cookie_token) {
+        $(".container").show();
+        $.ajax({
+            url: SERVER_URL + "/concept",
+            type: "GET",
+            data: {
+                "useremail": useremail
+            },
+            crossDomain: true,
+            headers: {
+                'token': cookie_token
+            },
+            success: function(data) {
+                data = JSON.parse(data);
+                var allConcepts = data;
+                if (data.length == 0) {
+                    $("concepts-list").hide();
+                    var no_concepts_message = $("<label>You have not created any concept till now! Want to create one ?</label>");
+                    $('.container').append(no_concepts_message)
+                } else {
+                    $("concepts-list").show();
+                }
+                for (var x in data) {
+                    var linksHtml = "<td class="
+                    col - md - 2 " >";
+                    if (data[x]["embeded_links"]) {
+                        var links = data[x]["embeded_links"][0].split(",") for (var index in links) {
+                            var link = links[index] linksHtml += "<a href='" + link + "'>" + link + "</a>";
+                        }
+                    }
+                    linksHtml += "</td>";
+                    var storageFilesHtml = "<td class="
+                    col - md - 2 ">";
+                    if (data[x]["file_storage_url"]) {
+                        var links = data[x]["file_storage_url"];
+                        for (var index in links) {
+                            var link = links[index] storageFilesHtml += "<a href='" + link + "'>" + link + "</a>";
+                        }
+                    }
+                    storageFilesHtml += "</td>";
+                    var videoNamesFilesHtml = "<td class="
+                    col - md - 2 ">";
+                    if (data[x]["video_names"]) {
+                        var links = data[x]["video_names"][0].split(",") for (var index in links) {
+                            var link = links[index] videoNamesFilesHtml += link + ",";
+                        }
+                    }
+                    videoNamesFilesHtml += "</td>";
+                    var table_row = $("<tr id=" + data[x]["id"] + "><td>" + data[x]["created"] + "</td>" + "<td>" + data[x]["concept_title"] + "</td>" + "<td>" + data[x]["producer"] + "</td>" + "<td>" + data[x]["talent"] + "</td>" + "<td>" + data[x]["no_of_videos"] + "</td>" + /*videoNamesFilesHtml + "<td>"+ data[x]["concept_note"] +"</td>" +*/ "<td>" + data[x]["shoot_days"] + "</td>" + "<td>" + data[x]["status"] + "</td>" + "<td><input type="
+                        button " class="
+                        btn btn - info edit - concept " concept-id=" + data[x]["id"] + " value="
+                        EDIT "/></td>" + "<td><input type="
+                        button " class="
+                        btn btn - danger delete - concept " concept-id=" + data[x]["id"] + " value="
+                        DELETE "/></td></tr>" + /*linksHtml + storageFilesHtml + */ "<tr style='display:none;'><td class='row-header'><b>Concept ID: </b></td><td>" + data[x]["id"] + "</td></tr>");
+                    $("#concepts-list").append(table_row);
+                }
+                $(".edit-concept").click(function(e) {
+                    var concept = ($(this).attr('concept-id'));
+                    window.open(BASE_URL + '/templates/concept_edit.html?concept=' + concept + "&ROLE=" + ROLE + "&email=" + useremail, '_blank');
+                }) $(".delete-concept").click(function(e) {
+                    alert("In delete");
+                    var concept_id = ($(this).attr('concept-id'));
+                    $.ajax({
+                        url: SERVER_URL + "/concept/" + concept_id,
+                        type: "DELETE",
+                        data: {
+                            "useremail": useremail
+                        },
+                        crossDomain: true,
+                        headers: {
+                            'token': cookie_token
+                        },
+                        success: function(data) {
+                            data = JSON.parse(data);
+                            $("#" + concept_id).remove();
+                        }
+                    });
+                })
+            },
+            error: function(data) {
+                window.location.href = BASE_URL + "/templates/unauthorised.html";
+            }
+        });
+    }
+</script>
+
+</html>
